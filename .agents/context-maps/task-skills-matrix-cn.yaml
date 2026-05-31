@@ -1,0 +1,237 @@
+# 任务-skill 映射矩阵 (Task-Skill Mapping Matrix)
+# 根据元数据和标签将任务映射到相关的 skills
+# 由 task-analysis.md 用于为每种任务类型推荐合适的 skills
+
+skills:
+  # 核心 skills
+  metacognition:
+    path: ".agents/skills/metacognition/SKILL-cn.md"
+    tags: [自我评估, 反思, 决策检查点, 质量控制]
+    when_to_load:
+      - "任务类型发生变化时 (例如，从设计转为实现)"
+      - "重复出现意外错误时"
+      - "完成一个有意义的工作单元时"
+      - "开始新的实现之前"
+    typical_tasks: [all]
+    size: small
+    priority: always
+    description: "用于维持质量的自我评估和反思协议"
+
+  ai-development-guide:
+    path: ".agents/skills/ai-development-guide/SKILL-cn.md"
+    tags: [反模式, 调试, 最佳实践, 三次原则, 技术债, 影响分析, 未使用代码, 代码删除, 实现完整性]
+    when_to_load:
+      - "开始新的实现时"
+      - "代码审查和重构时"
+      - "调试复杂问题时"
+      - "进行技术决策时"
+      - "变更前的影响分析"
+    typical_tasks: [implementation, debugging, refactoring]
+    size: medium
+    priority: high
+    description: "反模式、调试技术、开发最佳实践以及实现完整性保证"
+
+  documentation-criteria:
+    path: ".agents/skills/documentation-criteria/SKILL-cn.md"
+    tags: [文档, ADR, 设计文档, 决策矩阵, 规模评估]
+    when_to_load:
+      - "任务规模评估 (小规模/中等规模/大规模)"
+      - "需要进行架构决策时"
+      - "创建技术文档时"
+      - "新功能规划时"
+    typical_tasks: [design, documentation, planning]
+    size: medium
+    priority: medium
+    description: "何时以及如何创建文档的标准"
+
+  testing-strategy:
+    path: ".agents/skills/testing-strategy/SKILL-cn.md"
+    tags: [测试, ROI计算, 测试选择, 预算执行, 行为优先]
+    when_to_load:
+      - "根据设计文档生成验收测试时"
+      - "测试优先级排序和选择"
+      - "基于ROI的测试策略决策"
+      - "防止测试过度生成"
+    typical_tasks: [test_generation]
+    size: large
+    priority: high
+    description: "基于ROI的测试选择框架，包含行为优先过滤和预算执行"
+
+  integration-e2e-testing:
+    path: ".agents/skills/integration-e2e-testing/SKILL-cn.md"
+    tags: [测试, 集成测试, E2E测试, 行为优先, Mock边界, 测试审查]
+    when_to_load:
+      - "生成集成/E2E测试骨架时"
+      - "实现集成/E2E测试时"
+      - "审查测试实现质量时"
+    typical_tasks: [test_generation, test_review]
+    size: small
+    priority: high
+    description: "集成和E2E测试设计、实现 skill 及审查标准"
+
+  # 架构 skills
+  implementation-approach:
+    path: ".agents/skills/implementation-approach/SKILL-cn.md"
+    tags: [策略选择, 任务分解, 验证层级, 集成点]
+    when_to_load:
+      - "中/大规模任务 (3个以上文件)"
+      - "实现策略选择"
+      - "任务分解和规划"
+      - "在纵向/横向切片之间进行选择"
+    typical_tasks: [planning, design, implementation]
+    size: medium
+    priority: conditional
+    description: "实现方法的策略选择 (纵向/横向切片)"
+
+  # 开发 skills
+  coding-rules:
+    path: ".agents/skills/coding-rules/SKILL-cn.md"
+    references:
+      typescript: ".agents/skills/coding-rules/references/typescript-cn.md"
+    tags: [实现, 编码风格, 错误处理, 重构, 整洁代码, SOLID原则]
+    when_to_load:
+      - "编写或修改代码时"
+      - "代码审查时"
+      - "重构现有代码时"
+      - "实现新功能时"
+    typical_tasks: [implementation, refactoring]
+    size: medium
+    priority: high
+    description: "编码标准和最佳实践 (包含特定语言的参考)"
+
+  testing:
+    path: ".agents/skills/testing/SKILL-cn.md"
+    references:
+      typescript: ".agents/skills/testing/references/typescript-cn.md"
+    tags: [测试, TDD, 质量保证, 覆盖率, 单元测试, 集成测试, VERIFY阶段]
+    when_to_load:
+      - "编写测试时"
+      - "修复Bug (测试先行)"
+      - "质量检查时"
+      - "重构时 (确保安全)"
+      - "执行 VERIFY 阶段 (强制性)"
+    typical_tasks: [implementation, debugging, quality-check, test_generation]
+    size: medium
+    priority: always
+    description: "测试标准和 TDD 实践 (包含特定语言的参考)"
+
+
+# 任务类型到 skill 的映射
+task_mappings:
+  prd_creation:
+    required:
+      - "documentation-criteria"
+    recommended:
+      - "metacognition"
+
+  implementation:
+    required:
+      - "coding-rules"
+      - "testing"  # TDD 是强制性的
+      - "ai-development-guide"
+    recommended:
+      - "metacognition"
+    conditional:
+      - "implementation-approach"  # 针对中/大规模
+
+  debugging:
+    required:
+      - "ai-development-guide"
+      - "testing"
+    recommended:
+      - "coding-rules"
+    recommended:
+      - "metacognition"
+
+  design:
+    required:
+      - "documentation-criteria"
+    conditional:
+      - "implementation-approach"  # 中/大规模 (3个以上文件) 必需
+
+  documentation:
+    required:
+      - "documentation-criteria"
+
+  refactoring:
+    required:
+      - "coding-rules"
+      - "testing"
+      - "ai-development-guide"
+    recommended:
+      - "metacognition"
+
+  research:
+    recommended:
+      - "metacognition"
+
+  test_generation:
+    required:
+      - "testing"
+      - "documentation-criteria"
+      - "testing-strategy"
+      - "integration-e2e-testing"
+    recommended:
+      - "metacognition"
+
+  integration_test_review:
+    required:
+      - "testing"
+      - "integration-e2e-testing"
+    recommended:
+      - "metacognition"
+    description: "审查集成和 E2E 测试实现"
+
+  code_review:
+    required:
+      - "coding-rules"
+      - "ai-development-guide"
+    recommended:
+      - "metacognition"
+    description: "对照设计文档合规性审查实现代码"
+
+  technical_document_review:
+    required:
+      - "documentation-criteria"
+    conditional:
+      - "testing-strategy"
+      - "coding-rules"
+    recommended:
+      - "metacognition"
+    description: "审查技术文档 (设计文档, ADR)"
+
+# 基于规模的 skill 加载
+scale_mappings:
+  small:  # 1-2 个文件
+    load_immediately:
+      - "coding-rules"
+    load_on_demand: []
+
+  medium:  # 3-5 个文件
+    load_immediately:
+      - "coding-rules"
+      - "testing"  # TDD 是强制性的
+      - "documentation-criteria"
+      - "implementation-approach"  # 用于策略选择
+    load_on_demand:
+      - "ai-development-guide"
+
+  large:  # 6 个以上文件
+    load_immediately:
+      - "documentation-criteria"
+      - "implementation-approach"
+    load_on_demand:
+      - "coding-rules"
+      - "testing"
+      - "ai-development-guide"
+
+# skill 选择算法的元数据
+selection_rules:
+  - "始终在会话开始时加载元认知 (metacognition)"
+  - "涉及任何代码修改时加载编码 skill (coding-rules)"
+  - "为所有实现任务加载测试 skill (testing) (TDD 是强制性的)"
+  - "为中/大规模任务 (3个以上文件) 加载实现方法 (implementation-approach)"
+  - "在 VERIFY 阶段执行所有质量检查命令，且必须为 0 错误"
+  - "渐进式加载：从最小需求开始，按需添加"
+  - "任务完成后卸载特定于任务的 skills"
+  - "对于 TypeScript 项目，还需阅读 coding-rules 和 testing skill 中的 references/typescript-cn.md"
